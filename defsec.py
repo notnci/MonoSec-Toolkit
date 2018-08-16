@@ -2,15 +2,15 @@
 #Made by Christian Krenzlin, Co-Founder of MonoSec
 #Special Thanks to Albert Slepak for his help
 
-def main1():
-    print("Welcome to the MonoSec Defensive Framework")
-    print()
 
-def menu():
+def DefsecMenu():
     print()
-    print("Welcome to the world of Offensive Security:")
-    print("1. One")
-    print("2. Two")
+    print("Welcome to the world of Defensive Security:")
+    print("1. Steganography")
+    print("2. Anti Virus")
+    print("3. File access listeners")
+    print("4. Password deprecation check (uses API)")
+    print("5. File Encryptions")
     print("99. Exit")
     x = int(input("What option would you like to choose? "))
     if(x == 1):
