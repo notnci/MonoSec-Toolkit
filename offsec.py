@@ -10,6 +10,22 @@ arr = ["Social Engineering  A collection of Social Engineering tools, including 
  "Hash Cracking       This takes a different approach to cracking passwords. If you have a password hash from somewhere, and you'd like to know what the password is, but it may be in a one-way algorithm, you can use this with an attached wordlist to bruteforce the hash",
 ]
 
+
+def SocialEngineering():
+    print("asd")
+
+def Dictionary():
+    print("fdf")
+
+def Brute():
+    print("das")
+
+def Reverse_Shell():
+    print("dasdg")
+
+def HashCrack():
+    print("yeet")
+
 def OffsecHelpmenu():
     print("welcome to the help menu")
     print()
@@ -30,14 +46,19 @@ def OffsecMenu():
     x = int(input("What option would you like to choose? "))
     if(x == 1):
         print("SE")
+        SocialEngineering()
     elif(x == 2):
         print("Dictionary")
+        Dictionary()
     elif(x == 3):
         print("BF")
+        Brute()
     elif(x == 4):
         print("Reverse shell NOTE:PLEASE RESEARCH")
+        Reverse_Shell()
     elif(x == 5):
         print("basically paste hashcat here")
+        HashCrack()
     elif(x == 88):
         OffsecHelpmenu()
         OffsecMenu()
