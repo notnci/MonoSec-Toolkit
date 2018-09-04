@@ -9,6 +9,9 @@ import time
 from bs4 import BeautifulSoup as bs
 import time
 import os
+#import Crypto
+#from Crypto.PublicKey import RSA
+#from Crypto import Random
 
 #Steganography: So you can add hidden files into an image
 def Steg():
@@ -63,12 +66,12 @@ def steg_decode():
 
 
 
-#Antivirus v1 will have a threat detection algorithm aka idk what I'm doing, and will use the VirusTotal API to scan files and parse results
+#Antivirus v1 will have a threat detection algorithm aka idk what I'm doing, and will use the VirusTotal API to scan files and parse results maybe
 def AV():
     print("YEET")
 
 
-#Creates a listener for opens, and records mac address, IP address, geolocation, time, etc and sends it to an email, hopefully
+#Creates a listener for opens, and records mac address, IP address, geolocation, time, etc and sends it to an email, hopefully.
 def FAC():
     def log(epoch_elapsed):
         if not os.path.exists("C:/Monosec"):
@@ -139,15 +142,158 @@ def check(email):
 
 
 #various cryptographic tools, like hashers, password generators, file encryptors (algorithm used: not determined)
+def cryptoExec(hash,word):
+    if hash == 1:
+        m = hashlib.md5(word.encode())
+        print("Your hash is: "+m.hexdigest())
+    elif hash == 2:
+        m = hashlib.sha1(word.encode())
+        print("Your hash is: "+m.hexdigest())
+    elif hash == 3:
+        m = hashlib.sha224(word.encode())
+        print("Your hash is: "+m.hexdigest())
+    elif hash == 4:
+        m = hashlib.sha256(word.encode())
+        print("Your hash is: "+m.hexdigest())
+    elif hash == 5:
+        m = hashlib.sha384(word.encode())
+        print("Your hash is: "+m.hexdigest())
+    elif hash == 6:
+        m = hashlib.sha512(word.encode())
+        print("Your hash is: "+m.hexdigest())
+
+    else:
+        print("Bad option")
+        print()
+        crypto()
+
+def cipher(offset,text):
+    newText = ""
+    for symbol in text:
+        if symbol.isalpha():
+            num = ord(symbol)
+            num += offset
+
+            if symbol.isupper():
+                if num > ord("Z"):
+                    num -= 26
+                elif num < ord("A"):
+                    num += 26
+            elif symbol.islower():
+                if num > ord("z"):
+                    num -= 26
+                elif num < ord("a"):
+                    num += 26
+            newText += chr(num)
+        else:
+            newText += symbol
+    print("Your cipher is: "+newText)
+
+def cipherCrack(offset,text):
+    newText = ""
+    for symbol in text:
+        if symbol.isalpha():
+            num = ord(symbol)
+            num -= offset
+
+            if symbol.isupper():
+                if num > ord("Z"):
+                    num -= 26
+                elif num < ord("A"):
+                    num += 26
+            elif symbol.islower():
+                if num > ord("z"):
+                    num -= 26
+                elif num < ord("a"):
+                    num += 26
+            newText += chr(num)
+        else:
+            newText += symbol
+    print("Your deciphered text is: "+newText)
+
+def cipherCrackBF(text):
+    for i in range(1,26):
+        newText = ""
+        for symbol in text:
+            if symbol.isalpha():
+                num = ord(symbol)
+                num -= i
+
+                if symbol.isupper():
+                    if num > ord("Z"):
+                        num -= 26
+                    elif num < ord("A"):
+                        num += 26
+                elif symbol.islower():
+                    if num > ord("z"):
+                        num -= 26
+                    elif num < ord("a"):
+                        num += 26
+                newText += chr(num)
+            else:
+                newText += symbol
+        print("One deciphered text is: "+newText)
+
+def subEncode(text):
+    nt = text
+    old = []
+    new = []
+    idx = int(input("How many letters do you want substituded?: "))
+    for i in range(idx):
+        ol = input("Enter the letter you want replaced: ")
+        old.append(ol)
+        nl = input("Enter the letter you want to replace it with: ")
+        new.append(nl)
+    for i in range(len(old)):
+        nt = nt.replace(old[i],new[i])
+    print("The original text was: "+text)
+    print("The ciphered text is: "+nt)
+
+
+
 def crypto():
+    print()
     print("Welcome to the Crypto Suite")
     print()
     print("1. Password Hashing")
     print("2. Cesar Ciphering")
-    print("3. Substitution Cipher Cracking")
-    print("4. Cesar Cipher Cracking")
-    print("5. AES Decyphering")
-    print("6. RSA Decyphering")
+    print("3. Substitution Ciphering")
+    print("4. Substitution Cipher Cracking")
+    print("5. Cesar Cipher Cracking")
+    crypt = int(input("Enter your choice: "))
+    if crypt == 1:
+        print("Here are the available hashing algorithms:")
+        print()
+        print("1. MD5")
+        print("2. SHA1")
+        print("3. SHA224")
+        print("4. SHA256")
+        print("5. SHA384")
+        print("6. SHA512")
+        hash = int(input("Enter the hashing algorithm you want to use: "))
+        word = input("Enter the word you want hashed: ")
+        cryptoExec(hash,word)
+    elif crypt == 2:
+        offset = 0
+        while(offset >= 26 or offset < 1):
+            offset = int(input("Enter the offset you want to use for the cipher: "))
+        text = input("Enter the text you want ciphered: ")
+        cipher(offset, text)
+    elif crypt == 3:
+        print("[!!!] Make sure the text is lowercase")
+        text = input("Enter the text you want to cipher: ")
+        subEncode(text.lower())
+    elif  crypt == 4:
+        print("ecks deee")
+    elif crypt == 5:
+        var = input("Do you know the key used to encrypt the message? [y/n] ")
+        if var.lower() == "y":
+            offset = int(input("WHat key vaule was used to encrypt the message?: "))
+            text = input("Enter the ciphered text: ")
+            cipherCrack(offset, text)
+        elif var.lower() == "n":
+            text = input("Enter the ciphered text: ")
+            cipherCrackBF(text)
 
 
 def DefsecMenu():
@@ -180,6 +326,3 @@ def DefsecMenu():
         exit()
 
 DefsecMenu()
-
-if __name__ == "__DefsecMenu__":
-    DefsecMenu()
