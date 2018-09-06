@@ -64,8 +64,6 @@ def steg_decode():
                 bits = ""
     print(" ".join(chars))
 
-
-
 #Antivirus v1 will have a threat detection algorithm aka idk what I'm doing, and will use the VirusTotal API to scan files and parse results maybe
 def AV():
     print("YEET")
@@ -249,6 +247,63 @@ def subEncode(text):
     print("The original text was: "+text)
     print("The ciphered text is: "+nt)
 
+def subDecode(text):
+    #Found at http://pi.math.cornell.edu/~mec/2003-2004/cryptography/subs/frequencies.html
+    frequencies={
+    "e":12.02,
+    "t":9.10,
+    "a":8.12,
+    "o":7.68,
+    "i":7.31,
+    "n":6.95,
+    "s":6.28,
+    "r":6.02,
+    "h":5.92,
+    "d":4.32,
+    "l":3.98,
+    "u":2.88,
+    "c":2.71,
+    "m":2.61,
+    "f":2.30,
+    "y":2.11,
+    "w":2.09,
+    "g":2.03,
+    "p":1.82,
+    "b":1.49,
+    "v":1.11,
+    "k":0.69,
+    "x":0.17,
+    "q":0.11,
+    "j":0.10,
+    "z":0.07
+    }
+    #Outline:
+    #Calculate letter frequencies in input text
+    #Compare letter frequency to frequency Dictionary
+    #Check for double letter combos
+    #Compare to double letter frequencies
+    #Compare to common 3 letter combos
+    #Substitute letters through frequency comparison
+    #hopefully have something readable at the end?
+    div = len(text)
+    dyn_num = {}
+    dyn_freq = {}
+    for key, value in frequencies.items():
+        letter = key
+        count = 0
+        for i in range(len(text)):
+            if text[i] == letter:
+                count += 1
+        dyn_num[letter] = count
+    print(dyn_num)
+    for key, value in dyn_num.items():
+        dyn_freq[key] = (value/div)*100
+    print()
+    print(dyn_freq)
+
+
+
+
 
 
 def crypto():
@@ -284,7 +339,8 @@ def crypto():
         text = input("Enter the text you want to cipher: ")
         subEncode(text.lower())
     elif  crypt == 4:
-        print("ecks deee")
+        text = input("Enter the string you want decoded: ")
+        subDecode(text)
     elif crypt == 5:
         var = input("Do you know the key used to encrypt the message? [y/n] ")
         if var.lower() == "y":
