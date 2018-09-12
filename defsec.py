@@ -9,6 +9,7 @@ import time
 from bs4 import BeautifulSoup as bs
 import time
 import os
+import webbrowser
 #import Crypto
 #from Crypto.PublicKey import RSA
 #from Crypto import Random
@@ -66,7 +67,20 @@ def steg_decode():
 
 #Antivirus v1 will have a threat detection algorithm aka idk what I'm doing, and will use the VirusTotal API to scan files and parse results maybe
 def AV():
-    print("YEET")
+    apiKey = "dcd448c15b466d12406bc8f47e8a73215fd0ddc04ea7f1bb812b6123d331ea65" #Enter your API key here
+
+    url = 'https://www.virustotal.com/vtapi/v2/file/scan'
+    file = input("Enter the name of the file you want scanned: ")
+    params = {'apikey': apiKey}
+    files = {'file': (file, open(file, 'rb'))}
+    response = requests.post(url, files=files, params=params)
+    print(response.text)
+    js = json.loads(response.text)
+    webbrowser.open(js["permalink"])
+
+
+    #TODO: Heuristic analysis when I have some more time
+
 
 
 #Creates a listener for opens, and records mac address, IP address, geolocation, time, etc and sends it to an email, hopefully.
@@ -103,7 +117,7 @@ def pwned():
         print("Bad input")
         pwned()
 
-
+#Password check
 def checkPass(p):
     sentinel = p
     p = hashlib.sha1(p.encode()).hexdigest()
@@ -117,7 +131,7 @@ def checkPass(p):
                 print("The hash is: "+temp+" and the password is: "+sentinel)
         time.sleep(1.3)
     else:
-        print("Fuck")
+        print("nope")
 
 
 def check(email):
@@ -134,7 +148,7 @@ def check(email):
         print("Too many requests too quickly")
         rate = rate + .3
     elif str(response.status_code) == "503":
-        print("Cloudflare is gay")
+        print("Cloudflare....")
     time.sleep(rate)
     DefsecMenu()
 
@@ -366,10 +380,8 @@ def DefsecMenu():
     if(x == 1):
         Steg()
     elif(x == 2):
-        print("AV")
         AV()
     elif(x==3):
-        print("FAL")
         FAC()
     elif(x==4):
         pwned()
