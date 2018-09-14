@@ -67,7 +67,7 @@ def steg_decode():
 
 #Antivirus v1 will have a threat detection algorithm aka idk what I'm doing, and will use the VirusTotal API to scan files and parse results maybe
 def AV():
-    apiKey = "dcd448c15b466d12406bc8f47e8a73215fd0ddc04ea7f1bb812b6123d331ea65" #Enter your API key here
+    apiKey = "" #Enter your API key here
 
     url = 'https://www.virustotal.com/vtapi/v2/file/scan'
     file = input("Enter the name of the file you want scanned: ")
