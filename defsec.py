@@ -67,7 +67,7 @@ def steg_decode():
 
 #Antivirus v1 will have a threat detection algorithm aka idk what I'm doing, and will use the VirusTotal API to scan files and parse results maybe
 def AV():
-    apiKey = "" #Enter your API key here
+    apiKey = "dcd448c15b466d12406bc8f47e8a73215fd0ddc04ea7f1bb812b6123d331ea65" #Enter your API key here
 
     url = 'https://www.virustotal.com/vtapi/v2/file/scan'
     file = input("Enter the name of the file you want scanned: ")
@@ -260,9 +260,89 @@ def subEncode(text):
         nt = nt.replace(old[i],new[i])
     print("The original text was: "+text)
     print("The ciphered text is: "+nt)
-
+#Baseline information https://en.wikipedia.org/wiki/Frequency_analysis
 def subDecode(text):
+    double_letters =["aa","bb","cc","dd","ee","ff","gg","hh","ii","jj","kk","ll",
+    "mm","nn","oo","pp","qq","rr","ss","tt","uu","vv","ww","xx","yy","zz"]
+
+    double_letter_freq = {}
+
+
+    #Found at https://en.wikipedia.org/wiki/Letter_frequency
+    first_letter_frequency = {
+    "a":11.682,
+    "b":4.34,
+    "c":2.78,
+    "d":4.25,
+    "e":12.7,
+    "f":2.22,
+    "g":2.015,
+    "h":6.094,
+    "i":6.966,
+    "j":0.153,
+    "k":0.772,
+    "l":4.025,
+    "m":2.406,
+    "n":6.749,
+    "o":7.507,
+    "p":1.929,
+    "q":0.095,
+    "r":5.987,
+    "s":6.327,
+    "t":9.056,
+    "u":2.758,
+    "v":0.978,
+    "w":2.360,
+    "x":0.150,
+    "y":1.974,
+    "z":0.074,
+    }
+
+    #Found at https://en.wikipedia.org/wiki/Bigram
+    bigram_frequency = {
+    "th":1.52,
+    "he":1.28,
+    "in":0.94,
+    "er":0.94,
+    "an":0.82,
+    "re":0.68,
+    "nd":0.63,
+    "at":0.59,
+    "on":0.57,
+    "nt":0.56,
+    "ha":0.56,
+    "es":0.56,
+    "st":0.55,
+    "en":0.55,
+    "ed":0.53,
+    "to":0.52,
+    "it":0.50,
+    "ou":0.50,
+    "ea":0.47,
+    "hi":0.46,
+    "is":0.46,
+    "or":0.46,
+    "ti":0.34,
+    "as":0.33,
+    "te":0.27,
+    "et":0.19,
+    "ng":0.18,
+    "of":0.16,
+    "al":0.09,
+    "de":0.09,
+    "se":0.08,
+    "le":0.08,
+    "sa":0.06,
+    "si":0.05,
+    "ar":0.04,
+    "ve":0.04,
+    "ra":0.04,
+    "ld":0.02,
+    "ur":0.02
+    }
+
     #Found at http://pi.math.cornell.edu/~mec/2003-2004/cryptography/subs/frequencies.html
+
     frequencies={
     "e":12.02,
     "t":9.10,
@@ -302,6 +382,7 @@ def subDecode(text):
     div = len(text)
     dyn_num = {}
     dyn_freq = {}
+    dyn_double_letter = {}
     for key, value in frequencies.items():
         letter = key
         count = 0
@@ -309,16 +390,20 @@ def subDecode(text):
             if text[i] == letter:
                 count += 1
         dyn_num[letter] = count
+
+    print()
+    print("Letter counts:")
     print(dyn_num)
     for key, value in dyn_num.items():
         dyn_freq[key] = (value/div)*100
     print()
+    print("Letter frequencies:")
     print(dyn_freq)
-
-
-
-
-
+    for i in range(len(double_letters)):
+        dyn_double_letter[double_letters[i]] = text.count(double_letters[i])
+    print()
+    print("Double Letter Counts:")
+    print(dyn_double_letter)
 
 def crypto():
     print()
