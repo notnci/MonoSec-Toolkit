@@ -13,6 +13,8 @@ import itertools
 import zipfile
 import socket
 import os
+import json
+import requests
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -56,7 +58,6 @@ def OffsecMenu():
     elif(x == 3):
         Brute()
     elif(x == 4):
-        print("Reverse shell NOTE:PLEASE RESEARCH")
         Reverse_Shell()
     elif(x == 5):
         HashCrack()
@@ -66,6 +67,17 @@ def OffsecMenu():
     elif(x == 99):
         exit()
 
+def geolocation():
+    ip = input("Enter the IP you want to search for: ")
+    r = requests.get("https://www.ipinfo.io/"+ip+"/geo")
+    ret = r.text
+    parsed = json.loads(ret)
+    print()
+    print("Here are the results")
+    print("City: "+parsed["city"])
+    print("Region: "+parsed["region"])
+    print("Country: "+parsed["country"])
+
 
 #social engienrring sub menu
 def SocialEngineering():
@@ -74,6 +86,7 @@ def SocialEngineering():
     print("2. Email spoofing")
     print("3. Malicious payload generator (?)")
     print("4. Mass emailer")
+    print("5. IP Geolocation")
 
     x = int(input("Enter the number of your option: "))
     if(x == 1):
@@ -85,14 +98,19 @@ def SocialEngineering():
     elif(x==4):
         print("ME")
         MassEmailer()
+    elif(x == 5):
+        geolocation()
 #Outline for a mass emailer. Will add sender spoofing
 def MassEmailer():
-    to = input("Enter the email address of the recipient: ")
+    list = input("Enter the filename for the email list")
+    with open(list) as f:
+        lines = [line.rstrip('\n') for line in open(list)]
+    for i in lines:
+        arr1.append(i)
     sender = input("Enter the sender address: ")
     provider = input("Enter the provider here: ")
     subject = input("Enter the subject of the email: ")
     prov_port = int(input("Enter the smtp port number for your provider: "))
-    amount = int(input("How many times do you want to send this email?: "))
     password = getpass.getpass()
     s = smtplib.SMTP(host=provider, port=prov_port)
     s.starttls()
@@ -104,18 +122,18 @@ def MassEmailer():
         MassEmailer()
     #message creation
     message = input("Enter the message body: ")
-    msg = MIMEMultipart()
-    msg['From']=sender
-    msg['To']=to
-    msg['Subject']=subject
+    for email in arr1:
+        msg = MIMEMultipart()
+        msg['From']=sender
+        msg['To']=to
+        msg['Subject']=subject
 
     # add in the message body
-    msg.attach(MIMEText(message, 'plain'))
+        msg.attach(MIMEText(message, 'plain'))
 
     # send the message via the server set up earlier.
-    for i in range(amount):
         s.send_message(msg)
-    del msg
+        del msg
     s.quit()
 
 
@@ -174,7 +192,7 @@ def Brute():
     if(x == 1):
         bfEmail()
     if(x == 2):
-        print(bfZip())
+        bfZip()
 #email brutefocing, will use proxies to bypass captchas (?)
 def bfEmail():
     print()
@@ -183,51 +201,22 @@ def bfEmail():
 #Shits broken my dude
 #Dictionary attack to break .zip file passwords
 def bfZip():
-    arr1.remove("a")
+    pass_array = []
     print("zip and dictionary file have to be in the same directory as this")
     zip = input("Enter the name of your zip file: ")
     dict = input("Enter the name of your dictionary: ")
-    with open(dict) as f:
-        lines = [line.rstrip('\n') for line in open(dict)]
-    for i in lines:
-        arr1.append(i)
-    back = '.' + zip +'.data'
-    password = ''
-    try:
-        x = open(back,"r")
-        data = x.readline().strip()
-        if 'pwd' == data[:3]:
-            password = data[4:]
-            return password
-        else:
-            start = int(data)
-        x.close()
-    except:
-        start = 1
-    try:
-        zf = zipfile.ZipFile(zip)
-        files = zf.infolist()
-        data = zf.read(files[0],pwd = password)
-        zf.close()
-        yeet = True
-    except:
-        yeet = False
-    if not yeet:
-        for i in range(start,len(arr)):
-            try:
-                flag = zf.extract(zip, arr[i])
-                if flag:
-                    password = arr[i]
-                    break
-            except KeyboardInterrupt:
-                exit(0)
-    if not flag:
-        print("No password found")
-        exit(0)
-    x = open(back,'w')
-    x.write('pwd:' + password)
-    x.close()
-    return password
+    with zipfile.ZipFile(zip, 'r') as zf:
+        print(zf.namelist())
+        for filename in zf.namelist():
+            with open(dict) as f:
+                x = [line.rstrip('\n') for line in open(dict)]
+            for pw in x:
+                try:
+                    zf.extractall(pwd=bytes(pw,'utf-8'))
+                    print("Password found: "+pw)
+                except:
+                    print("Wrong password: "+pw)
+
 
 
 
@@ -306,7 +295,7 @@ def crackExec(list,hash,algorithm):
     with open(list) as f:
         lines = [line.rstrip('\n') for line in open(list)]
     for i in lines:
-        arr.append(i)
+        arr1.append(i)
     if(algorithm == 1):
         found = False
         for i in range(len(arr)):
