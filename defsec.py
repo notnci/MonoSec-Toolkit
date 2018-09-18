@@ -266,6 +266,19 @@ def subDecode(text):
     "mm","nn","oo","pp","qq","rr","ss","tt","uu","vv","ww","xx","yy","zz"]
 
     double_letter_freq = {}
+#Found at https://www3.nd.edu/~busiforc/handouts/cryptography/Letter%20Frequencies.html
+    last_letter_freq = {
+    "e":19.17,
+    "s":14.35,
+    "d":9.23,
+    "t":8.64,
+    "n":7.86,
+    "y":7.30,
+    "r":6.93,
+    "o":4.67,
+    "l":4.56,
+    "f":4.08
+    }
 
 
     #Found at https://en.wikipedia.org/wiki/Letter_frequency
@@ -295,7 +308,7 @@ def subDecode(text):
     "w":2.360,
     "x":0.150,
     "y":1.974,
-    "z":0.074,
+    "z":0.074
     }
 
     #Found at https://en.wikipedia.org/wiki/Bigram
@@ -404,6 +417,30 @@ def subDecode(text):
     print()
     print("Double Letter Counts:")
     print(dyn_double_letter)
+
+    print("These are the possible words with first letter adjustments:")
+    new_t = text.split(" ")
+    for i in new_t:
+        temp_first_adj = []
+        for j in first_letter_frequency.keys():
+            temp_string = i
+            temp_first_adj.append(temp_string.replace(temp_string[0],j))
+        print(temp_first_adj)
+
+
+
+    print("These are the possible words with last letter adjustments:")
+    new_t = text.split(" ")
+    for i in new_t:
+        temp_last_adj = []
+        for j in last_letter_freq.keys():
+            temp_string = i
+            temp_last_adj.append(temp_string.replace(temp_string[-1],j))
+        print(temp_last_adj)
+
+
+
+
 
 def crypto():
     print()
