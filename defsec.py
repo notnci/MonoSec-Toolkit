@@ -6,7 +6,6 @@ import json
 import requests
 import cv2
 import time
-from bs4 import BeautifulSoup as bs
 import time
 import os
 import webbrowser
@@ -83,7 +82,7 @@ def AV():
 
 
 
-#Creates a listener for opens, and records mac address, IP address, geolocation, time, etc and sends it to an email, hopefully.
+#Creates a listener for opens, and  TODO records mac address, IP address, geolocation, time, etc and sends it to an email, hopefully.
 def FAC():
     def log(epoch_elapsed):
         if not os.path.exists("C:/Monosec"):
@@ -115,6 +114,7 @@ def pwned():
             checkPass(p)
     else:
         print("Bad input")
+        print()
         pwned()
 
 #Password check
@@ -142,8 +142,6 @@ def check(email):
         print("Your account doesn't seem to be breached")
     elif str(response.status_code) == "200":
         print("Your account has been compromised.")
-    elif str(response.status_code) == "404":
-        print("There was an error")
     elif str(response.status_code) == "429":
         print("Too many requests too quickly")
         rate = rate + .3
@@ -175,7 +173,7 @@ def cryptoExec(hash,word):
         print("Your hash is: "+m.hexdigest())
 
     else:
-        print("Bad option")
+        print("Not a valid option")
         print()
         crypto()
 
@@ -260,6 +258,8 @@ def subEncode(text):
         nt = nt.replace(old[i],new[i])
     print("The original text was: "+text)
     print("The ciphered text is: "+nt)
+
+
 #Baseline information https://en.wikipedia.org/wiki/Frequency_analysis
 def subDecode(text):
     double_letters =["aa","bb","cc","dd","ee","ff","gg","hh","ii","jj","kk","ll",
@@ -462,6 +462,10 @@ def crypto():
         print("5. SHA384")
         print("6. SHA512")
         hash = int(input("Enter the hashing algorithm you want to use: "))
+        if(hash < 1 or hash > 6):
+            print("Not a valid option")
+            print()
+            crypto
         word = input("Enter the word you want hashed: ")
         cryptoExec(hash,word)
     elif crypt == 2:
@@ -486,6 +490,10 @@ def crypto():
         elif var.lower() == "n":
             text = input("Enter the ciphered text: ")
             cipherCrackBF(text)
+        else:
+            print("Not a valid option")
+            print()
+            crypto()
 
 
 def DefsecMenu():
@@ -514,5 +522,9 @@ def DefsecMenu():
         DefsecMenu()
     elif(x==99):
         exit()
+    else:
+        print("Not a valid option")
+        print()
+        DefsecMenu()
 
 DefsecMenu()

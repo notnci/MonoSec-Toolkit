@@ -1,7 +1,6 @@
 #Offensive Security Framework
 #Made by Christian Krenzlin, Co-Founder of MonoSec
 #Special Thanks to Albert Slepak for his help
-import interface
 import itertools
 import math
 import hashlib
@@ -19,23 +18,18 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-arr = ["Social Engineering  A collection of Social Engineering tools, including Phishing email producer, email spoofer, and many more","",
- "Dictionary Creation You can enter an array of words and/or numbers and the algorithm will create a list of all possible passwords created with those words and save it into your specified file path","",
- "Bruteforcing tool   A bruteforcing tool that's designed to both bruteforce local files, such as password protected ZIP files, it can also bruteforce supported email services","",
- "Reverse Shell       Allows you to create a reverse tcp shell in order to keep a connection to the infected computer","",
- "Hash Cracking       This takes a different approach to cracking passwords. If you have a password hash from somewhere, and you'd like to know what the password is, but it may be in a one-way algorithm, you can use this with an attached wordlist to bruteforce the hash",
-]
+arr = ["print help docs"]
 
 
 
-arr1 = ["a"]
+arr1 = []
 
 #help menu
 def OffsecHelpmenu():
     print("welcome to the help menu")
     print()
-    for i in range(0,len(arr)):
-        print(arr[i])
+    for i in range(0,len()):
+        print([i])
 
 
 #command line menu
@@ -45,7 +39,6 @@ def OffsecMenu():
     print("1. Social Engineering")
     print("2. Dictionary Creation")
     print("3. Bruteforcing tool")
-    #TODO add a reverse shell
     print("4. Reverse shell")
     print("5. Hash cracking")
     print("88. Help")
@@ -82,24 +75,17 @@ def geolocation():
 #social engienrring sub menu
 def SocialEngineering():
     print("Welcome to the Social Engineering area of MSF")
-    print("1. Phishing emails")
-    print("2. Email spoofing")
-    print("3. Malicious payload generator (?)")
-    print("4. Mass emailer")
-    print("5. IP Geolocation")
+    print("1. Mass emailer")
+    print("2. IP Geolocation")
 
     x = int(input("Enter the number of your option: "))
     if(x == 1):
-        print("PE")
-    elif(x==2):
-        print("ES")
-    elif(x==3):
-        print("MP")
-    elif(x==4):
-        print("ME")
         MassEmailer()
     elif(x == 5):
         geolocation()
+    else:
+        print("Not an option")
+        SocialEngineering()
 #Outline for a mass emailer. Will add sender spoofing
 def MassEmailer():
     list = input("Enter the filename for the email list")
@@ -122,7 +108,7 @@ def MassEmailer():
         MassEmailer()
     #message creation
     message = input("Enter the message body: ")
-    for email in arr1:
+    for email in 1:
         msg = MIMEMultipart()
         msg['From']=sender
         msg['To']=to
@@ -154,7 +140,6 @@ def Dictionary():
     dictExec(list,idx)
 #Creates a password dictionary based off of wordlist with variable passsword depth
 def dictExec(list,idx):
-    arr1.remove("a")
     x = 0
     with open(list) as f:
         lines = [line.rstrip('\n') for line in open(list)]
@@ -167,20 +152,20 @@ def dictExec(list,idx):
     print()
     y = 0
     if(idx == 2):
-        for y in range(len(arr)):
-            for i in range(len(arr)):
-                print(arr[y] + arr[i])
+        for y in range(len(arr1)):
+            for i in range(len(arr1)):
+                print(arr1[y] + arr1[i])
     elif(idx == 3):
-        for y in range(len(arr)):
-            for i in range(len(arr)):
-                for x in range(len(arr)):
-                    print(arr[y]+arr[i]+arr[x])
+        for y in range(len(arr1)):
+            for i in range(len(arr1)):
+                for x in range(len(arr1)):
+                    print(arr1[y]+arr1[i]+arr1[x])
     elif(idx == 4):
-        for y in range(len(arr)):
-            for i in range(len(arr)):
-                for x in range(len(arr)):
-                    for z in range(len(arr)):
-                        print(arr[y]+arr[i]+arr[x]+arr[z])
+        for y in range(len(arr1)):
+            for i in range(len(arr1)):
+                for x in range(len(arr1)):
+                    for z in range(len(arr1)):
+                        print(arr1[y]+arr1[i]+arr1[x]+arr1[z])
 
 
 def Brute():
@@ -201,7 +186,7 @@ def bfEmail():
 #Shits broken my dude
 #Dictionary attack to break .zip file passwords
 def bfZip():
-    pass_array = []
+    pass_ay = []
     print("zip and dictionary file have to be in the same directory as this")
     zip = input("Enter the name of your zip file: ")
     dict = input("Enter the name of your dictionary: ")
@@ -286,11 +271,14 @@ def HashCrack():
     print("5. sha384")
     print("6. sha512")
     algorithm = int(input("Enter the number of the correct hashing algorithm: "))
+    if(algorithm < 1 or algorithm > 6):
+        print("Not a valid option")
+        print()
+        HashCrack()
     crackExec(list,hash,algorithm)
 
 #Hash cracking by comparing hash values from word lists. Effective against 1 way hashes like SHA2 and SHA3
 def crackExec(list,hash,algorithm):
-    arr1.remove("a")
     sentinel = hash
     with open(list) as f:
         lines = [line.rstrip('\n') for line in open(list)]
@@ -298,10 +286,10 @@ def crackExec(list,hash,algorithm):
         arr1.append(i)
     if(algorithm == 1):
         found = False
-        for i in range(len(arr)):
-            m = hashlib.md5(arr[i].encode())
+        for i in range(len(arr1)):
+            m = hashlib.md5(arr1[i].encode())
             if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr[i])
+                print("The hash was found.The password is: "+arr1[i])
                 found = True
                 break
         if(not found):
@@ -309,20 +297,20 @@ def crackExec(list,hash,algorithm):
 
     elif(algorithm == 2):
         found = False
-        for i in range(len(arr)):
-            m = hashlib.sha1(arr[i].encode())
+        for i in range(len(arr1)):
+            m = hashlib.sha1(arr1[i].encode())
             if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr[i])
+                print("The hash was found.The password is: "+arr1[i])
                 found = True
                 break
         if(not found):
             print("No passwords matched")
     elif(algorithm == 3):
         found = False
-        for i in range(len(arr)):
+        for i in range(len(arr1)):
             m = hashlib.sha256(arr[i].encode())
             if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr[i])
+                print("The hash was found.The password is: "+arr1[i])
                 found = True
                 break
         if(not found):
@@ -331,29 +319,29 @@ def crackExec(list,hash,algorithm):
     elif(algorithm == 4):
         found = False
         for i in range(len(arr)):
-            m = hashlib.sha224(arr[i].encode())
+            m = hashlib.sha224(arr1[i].encode())
             if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr[i])
+                print("The hash was found.The password is: "+arr1[i])
                 found = True
                 break
         if(not found):
             print("No passwords matched")
     elif(algorithm == 5):
         found = False
-        for i in range(len(arr)):
-            m = hashlib.sha384(arr[i].encode())
+        for i in range(len(arr1)):
+            m = hashlib.sha384(arr1[i].encode())
             if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr[i])
+                print("The hash was found.The password is: "+arr1[i])
                 found = True
                 break
         if(not found):
             print("No passwords matched")
     elif(algorithm == 6):
         found = False
-        for i in range(len(arr)):
-            m = hashlib.sha512(arr[i].encode())
+        for i in range(len(arr1)):
+            m = hashlib.sha512(arr1[i].encode())
             if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr[i])
+                print("The hash was found.The password is: "+arr1[i])
                 found = True
                 break
         if(not found):
