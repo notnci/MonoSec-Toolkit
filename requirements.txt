@@ -2,3 +2,4 @@ zipfile36
 simplejson
 requests
 opencv-python
+stegano
