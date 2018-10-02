@@ -8,17 +8,30 @@ import sys
 import smtplib
 import time
 import getpass
-import itertools
 import zipfile
 import socket
 import os
 import json
 import requests
+from scapy.all import *
+import urllib3
+from logging import getLogger, ERROR
+getLogger("scapy.runtime").setLevel(ERROR)
+from time import strftime
+from datetime import datetime
+from requests import get
+from requests import RequestException
+from contextlib import closing
+from bs4 import BeautifulSoup
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 
-arr = ["print help docs"]
+arr = ["Social Engineering: A basic outline with IP Geolocation and mass emailing","",
+"Dictionary Creation: Lets you enter a list of words, and creates possible password combinations using those words","",
+"Bruteforcing Tool: Lets you bruteforce zip files as well as email accounts. Can be expanded to include others as well","",
+"Reverse Shell: Creates a reverse shell through the client_tcp file and allows remote command line execution", "",
+"Hash Cracking: Essentially bruteforces a hash's cleartext value by comparing it to hashes in a dictionary specified"]
 
 
 
@@ -36,11 +49,11 @@ def OffsecHelpmenu():
 def OffsecMenu():
     print()
     print("Welcome to the world of Offensive Security:")
-    print("1. Social Engineering")
-    print("2. Dictionary Creation")
-    print("3. Bruteforcing tool")
-    print("4. Reverse shell")
-    print("5. Hash cracking")
+    print("1. Social Engineering")#Done until more features to be added
+    print("2. Dictionary Creation")#Donr
+    print("3. Bruteforcing tool")#TODO Add email bruteforcing
+    print("4. Reverse shell")#Done
+    print("5. Hash cracking")#Done
     print("88. Help")
     print("99. Exit")
     x = int(input("What option would you like to choose? "))
@@ -59,7 +72,7 @@ def OffsecMenu():
         OffsecMenu()
     elif(x == 99):
         exit()
-
+#IP geolocation
 def geolocation():
     ip = input("Enter the IP you want to search for: ")
     r = requests.get("https://www.ipinfo.io/"+ip+"/geo")
@@ -71,18 +84,133 @@ def geolocation():
     print("Region: "+parsed["region"])
     print("Country: "+parsed["country"])
 
+#Input a name and it will scrape all available info from google on the person and print it
+
+def persona():
+    person = input("Enter the person you want to search (use + instead of spaces): ")
+    url = "https://www.google.com/search?q=" + person
+    response = requests.get(url)
+    soup = BeautifulSoup(response.content,"html.parser")
+    for link in soup.find_all('span',attrs={'class':'st'}):
+        print(link.text)
+
+def hostIP():
+    host = input("Enter a host: ")
+    ip = socket.gethostbyname(host)
+    print("%s has the IP of %s" % (host, ip))
+
+def runScan(port ,ip):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        result = sock.connect_ex((ip,port))
+        if result == 0:
+            print("Open port at %i"%port)
+        else:
+            print("The result was %i at port %i" %(result, port))
+    except KeyboardInterrupt:
+        print("Forced exit...")
+    except socket.error:
+        print("Could not connect")
+
+def scanPort(port,target):
+    try:
+        srPort = RandShort()
+        conf.verb = 0
+        SynACKPacket = sr1(IP(dst=target)/TCP(sport = srPort,dport = port,flags="S"))
+        pFlags = SynACKPacket.getlayer(TCP).flags
+        if pFlags == 0x12:
+            return True
+        else:
+            return False
+        RSTPacket = IP(dst=target)/TCP(sport = srPort, dport = port, flags="R")
+        send(RSTPacket)
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        print()
+        OffsecMenu()
+
+
+def checkHost(ip):
+    conf.verb = 0
+    try:
+        ping = sr1(IP(dst = ip)/ICMP())
+        print("Target is resolved")
+    except Exception:
+        print("Host cannot be resolved")
+        print()
+        runStealthScan()
+
+def runStealthScan():
+    try:
+        target = input("Enter the host IP you want to check: ")
+        port_min = int(input("Enter the lowest port you want to scan: "))
+        port_max = int(input("Enter the highest port you want to scan: "))
+        try:
+            if port_min >= 0 and port_max >= 0 and (port_min < port_max):
+                pass
+            else:
+                print("Bad port range")
+                print()
+                runStealthScan()
+        except Exception:
+            print("Error...")
+            print()
+            runStealthScan()
+    except KeyboardInterrupt:
+        print("Forced Exit...")
+        OffsecMenu()
+    ports = range(port_min,port_max + 1)
+    start_clock = datetime.now()
+    SynACK = 0x12
+    RSTACK = 0x14
+    checkHost(target)
+    print("Scan started at "+strftime("%H:%M:%S"))
+    for port in ports:
+        status = scanPort(port,target)
+        if status == True:
+            print("Port %i is open"%port)
+    stop_clock = datetime.now()
+    tTime = stop_clock-start_clock
+    print("Time elapsed: "+str(tTime))
+
+
+def portScan():
+    stealth = input("Do you want to use stealth scan? [Y/N]: ")
+    if stealth == "Y":
+        runStealthScan()
+    elif stealth != "Y" or "N":
+        print("Wrong input")
+        print()
+        portScan()
+    host = input("Enter the host IP: ")
+    print("Enter the range of ports you want to scan on the host")
+    start = int(input("Starting port: "))
+    end = int(input("Ending port: "))
+    for i in range(start,end):
+        runScan(i,host)
+
+
 
 #social engienrring sub menu
 def SocialEngineering():
     print("Welcome to the Social Engineering area of MSF")
     print("1. Mass emailer")
     print("2. IP Geolocation")
+    print("3. Persona Searcher")
+    print("4. Host IP grabber")
+    print("5. Port Scanner")
 
     x = int(input("Enter the number of your option: "))
     if(x == 1):
         MassEmailer()
-    elif(x == 5):
+    elif(x == 2):
         geolocation()
+    elif(x == 3):
+        persona()
+    elif(x==4):
+        hostIP()
+    elif(x==5):
+        portScan()
     else:
         print("Not an option")
         SocialEngineering()
@@ -183,7 +311,6 @@ def bfEmail():
     print()
 
 
-#Shits broken my dude
 #Dictionary attack to break .zip file passwords
 def bfZip():
     pass_ay = []
@@ -201,9 +328,6 @@ def bfZip():
                     print("Password found: "+pw)
                 except:
                     print("Wrong password: "+pw)
-
-
-
 
 #reverse shell Creation
 
