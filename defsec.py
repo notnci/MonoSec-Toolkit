@@ -9,7 +9,10 @@ import time
 import time
 import os
 import webbrowser
+import subprocess
 import sys
+import shutil
+from os import path
 from stegano import lsb
 #import Crypto
 #from Crypto.PublicKey import RSA
@@ -532,6 +535,34 @@ def crypto():
         print("Forced exit...")
         sys.exit(1)
 
+def clearChrome():
+    data_dir = os.path.expandvars (r'C:\Users\%USERNAME%\AppData\Local\Google\Chrome\User Data\Default')
+    data_minus_one = os.path.expandvars (r'C:\Users\%USERNAME%\AppData\Local\Google\Chrome\User Data'
+    print(data_dir)
+    shutil.rmtree(data_dir)
+    subprocess.run(["cipher","/w:C:"], shell=True)
+
+
+
+def antiForensic():
+    try:
+        print("Welcome to some rudimentary anti forensic tools.")
+        print("1. Clear Chrome Data")
+        print("99. Back")
+        x = int(input("What option would you like to choose? "))
+        if(x == 1):
+            clearChrome()
+        elif(x==99):
+            DefsecMenu()
+        else:
+            print("Not a valid option")
+            print()
+            antiForensic()
+    except KeyboardInterrupt:
+        print("Forced exit...")
+        sys.exit(0)
+
+
 def DefsecMenu():
     try:
         print()
@@ -541,6 +572,7 @@ def DefsecMenu():
         print("3. File access listeners")#TODO create a callback bait file
         print("4. Password and Account deprecation")#seems to be fixed now with the verify = True flag and Done
         print("5. Crypto Suite")#TODO Finish calculations
+        print("6. Anti Forensics")
         print("88. Help")
         print("99. Exit")
         x = int(input("What option would you like to choose? "))
@@ -554,6 +586,8 @@ def DefsecMenu():
             pwned()
         elif(x==5):
             crypto()
+        elif(x==6):
+            antiForensic()
         elif(x == 88):
             DefsecHelpmenu()
             DefsecMenu()
