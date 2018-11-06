@@ -14,6 +14,11 @@ import sys
 import shutil
 from os import path
 from stegano import lsb
+from ngram_score import ngram_score
+from pycipher import SimpleSubstitution
+import random
+import re
+fitness = ngram_score("./english_quadgrams.txt")
 #import Crypto
 #from Crypto.PublicKey import RSA
 #from Crypto import Random
@@ -295,181 +300,53 @@ def subEncode(text):
 
 #Baseline information https://en.wikipedia.org/wiki/Frequency_analysis
 def subDecode(text):
-    double_letters =["aa","bb","cc","dd","ee","ff","gg","hh","ii","jj","kk","ll",
-    "mm","nn","oo","pp","qq","rr","ss","tt","uu","vv","ww","xx","yy","zz"]
-
-    double_letter_freq = {}
-    #Found at https://www3.nd.edu/~busiforc/handouts/cryptography/Letter%20Frequencies.html
-    last_letter_freq = {
-    "e":19.17,
-    "s":14.35,
-    "d":9.23,
-    "t":8.64,
-    "n":7.86,
-    "y":7.30,
-    "r":6.93,
-    "o":4.67,
-    "l":4.56,
-    "f":4.08
-    }
-
-
-    #Found at https://en.wikipedia.org/wiki/Letter_frequency
-    first_letter_frequency = {
-    "a":11.682,
-    "b":4.34,
-    "c":2.78,
-    "d":4.25,
-    "e":12.7,
-    "f":2.22,
-    "g":2.015,
-    "h":6.094,
-    "i":6.966,
-    "j":0.153,
-    "k":0.772,
-    "l":4.025,
-    "m":2.406,
-    "n":6.749,
-    "o":7.507,
-    "p":1.929,
-    "q":0.095,
-    "r":5.987,
-    "s":6.327,
-    "t":9.056,
-    "u":2.758,
-    "v":0.978,
-    "w":2.360,
-    "x":0.150,
-    "y":1.974,
-    "z":0.074
-    }
-
-    #Found at https://en.wikipedia.org/wiki/Bigram
-    bigram_frequency = {
-    "th":1.52,
-    "he":1.28,
-    "in":0.94,
-    "er":0.94,
-    "an":0.82,
-    "re":0.68,
-    "nd":0.63,
-    "at":0.59,
-    "on":0.57,
-    "nt":0.56,
-    "ha":0.56,
-    "es":0.56,
-    "st":0.55,
-    "en":0.55,
-    "ed":0.53,
-    "to":0.52,
-    "it":0.50,
-    "ou":0.50,
-    "ea":0.47,
-    "hi":0.46,
-    "is":0.46,
-    "or":0.46,
-    "ti":0.34,
-    "as":0.33,
-    "te":0.27,
-    "et":0.19,
-    "ng":0.18,
-    "of":0.16,
-    "al":0.09,
-    "de":0.09,
-    "se":0.08,
-    "le":0.08,
-    "sa":0.06,
-    "si":0.05,
-    "ar":0.04,
-    "ve":0.04,
-    "ra":0.04,
-    "ld":0.02,
-    "ur":0.02
-    }
-
-    #Found at http://pi.math.cornell.edu/~mec/2003-2004/cryptography/subs/frequencies.html
-
-    frequencies={
-    "e":12.02,
-    "t":9.10,
-    "a":8.12,
-    "o":7.68,
-    "i":7.31,
-    "n":6.95,
-    "s":6.28,
-    "r":6.02,
-    "h":5.92,
-    "d":4.32,
-    "l":3.98,
-    "u":2.88,
-    "c":2.71,
-    "m":2.61,
-    "f":2.30,
-    "y":2.11,
-    "w":2.09,
-    "g":2.03,
-    "p":1.82,
-    "b":1.49,
-    "v":1.11,
-    "k":0.69,
-    "x":0.17,
-    "q":0.11,
-    "j":0.10,
-    "z":0.07
-    }
-    #Outline:
-    #Calculate letter frequencies in input text
-    #Compare letter frequency to frequency Dictionary
-    #Check for double letter combos
-    #Compare to double letter frequencies
-    #Compare to common 3 letter combos
-    #Substitute letters through frequency comparison
-    #hopefully have something readable at the end?
-    div = len(text)
-    dyn_num = {}
-    dyn_freq = {}
-    dyn_double_letter = {}
-    for key, value in frequencies.items():
-        letter = key
+    maxscore = -99999999999
+    ctext = text
+    ctext = ctext.replace(" ","").upper()
+    print("Adjusted Text: " + ctext)
+    maxkey = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    pText, pKey = ctext,maxkey
+    decipher = SimpleSubstitution(pKey).decipher(pText)
+    pscore = fitness.score(decipher)
+    print("Deciphered: " + decipher)
+    print("Score: " + str(pscore))
+    i = 0
+    while 1:
+        i = i + 1
+        pKeyL = list(pKey)
+        random.shuffle(pKeyL)
+        pKey = ''.join(pKeyL)
+        decipher = SimpleSubstitution(pKey).decipher(ctext)
+        pscore = fitness.score(decipher)
         count = 0
-        for i in range(len(text)):
-            if text[i] == letter:
-                count += 1
-        dyn_num[letter] = count
+        while count  < 1000:
 
-    print()
-    print("Letter counts:")
-    print(dyn_num)
-    for key, value in dyn_num.items():
-        dyn_freq[key] = (value/div)*100
-    print()
-    print("Letter frequencies:")
-    print(dyn_freq)
-    for i in range(len(double_letters)):
-        dyn_double_letter[double_letters[i]] = text.count(double_letters[i])
-    print()
-    print("Double Letter Counts:")
-    print(dyn_double_letter)
-
-    print("These are the possible words with first letter adjustments:")
-    new_t = text.split(" ")
-    for i in new_t:
-        temp_first_adj = []
-        for j in first_letter_frequency.keys():
-            temp_string = i
-            temp_first_adj.append(temp_string.replace(temp_string[0],j))
-        print(temp_first_adj)
+            cKey = pKey
+            x = random.randint(0,25)
+            y = random.randint(0,25)
+            cKeyL = list(cKey)
+            cKeyL[x] = pKey[y]
+            cKeyL[y] = pKey[x]
+            cKey = ''.join(cKeyL)
+            #print("Key swapped")
+            decipher = SimpleSubstitution(cKey).decipher(pText)
+            score = fitness.score(decipher)
+            #print("Attempt: " + decipher)
+            #print("Score: " + str(score))
+            if score > pscore:
+                pscore = score
+                pKey = cKey
+                count = 0
+            count = count + 1
+    if(pScore > maxscore):
+        maxscore = pScore
+        maxkey = pKey
+        ss = SimpleSubstitution(maxkey).decipher(ctext)
+        print("Best Key: "+maxkey)
+        print("plaintext: "+ss)
 
 
 
-    print("These are the possible words with last letter adjustments:")
-    new_t = text.split(" ")
-    for i in new_t:
-        temp_last_adj = []
-        for j in last_letter_freq.keys():
-            temp_string = i
-            temp_last_adj.append(temp_string.replace(temp_string[-1],j))
-        print(temp_last_adj)
 
 def crypto():
     try:
@@ -537,7 +414,7 @@ def crypto():
 
 def clearChrome():
     data_dir = os.path.expandvars (r'C:\Users\%USERNAME%\AppData\Local\Google\Chrome\User Data\Default')
-    data_minus_one = os.path.expandvars (r'C:\Users\%USERNAME%\AppData\Local\Google\Chrome\User Data'
+    data_minus_one = os.path.expandvars (r'C:\Users\%USERNAME%\AppData\Local\Google\Chrome\User Data')
     print(data_dir)
     shutil.rmtree(data_dir)
     subprocess.run(["cipher","/w:C:"], shell=True)
